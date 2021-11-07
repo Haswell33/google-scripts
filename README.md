@@ -1,5 +1,6 @@
 # GoogleForms
 ### UpdateGoogleForms
-Updates defined by id google forms base by date from sheet
+Updates defined by id responses in google forms base by data from sheet
 
 ### MakeRelationship
+Adds formula in to last added row by form
