@@ -1,6 +1,11 @@
 # GoogleForms
-#### UpdateGoogleForms
-Updates defined by id responses in google forms base by data from sheet
+#### RedgeForms</br>
+- Form scripts
+  - <code>findDuplicates.gs</code>
+    - desc
+  - <code>makeRelationship.gs</code>
+  - <code>updateViewTable.gs</code>
+- Sheet scripts
+  - <code>updateGoogleForm.gs</code>
+  - <code>updateViewTable.gs</code>
 
-#### MakeRelationship
-Adds formula to last added row by form
