@@ -1,10 +1,4 @@
 # GoogleForms
-#### RedgeForms</br>
-- Form scripts
-  - <code>findDuplicates.gs</code>
-  - <code>makeRelationship.gs</code>
-  - <code>updateViewTable.gs</code>
-- Sheet scripts
-  - <code>updateGoogleForm.gs</code>
-  - <code>updateViewTable.gs</code>
+#### Customers Database </br>
+[CustomerDatabase_Documentation.pdf](https://github.com/Haswell33/google-scripts/files/7735927/CustomerDatabase_Documentation.pdf)
 
