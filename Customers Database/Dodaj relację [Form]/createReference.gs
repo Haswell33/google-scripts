@@ -1,9 +1,10 @@
-// Tworzy relacje z arkuszu Firma oraz Osoba w arkuszu Relacja w kolumnie Osoba oraz Firma przy dodaniu nowej relacji, OnSubmitEvent
+// It should be turn on OnSubmitEvent() in Google Form.
+// New added value will be edited in order to make reference, not usual string. Source sheet to reference should be pointes in addReference()
 
-var sheetID = '1PIdpiijgl8UiT4ehqguiWjaa4r6-XavvltYXfn6Gbg0' //arkusz Formularz
+var sheetID = 'google-sheet-id' //arkusz Formularz
 
 function createReference() {
-  const sheet = SpreadsheetApp.openById(sheetID).getSheetByName('Relacja')
+  const sheet = SpreadsheetApp.openById(sheetID).getSheetByName('google-subsheet-name')
   addReference(sheet, 'Osoba', 3)
   addReference(sheet, 'Firma', 4)
 }
@@ -29,7 +30,7 @@ function findNewValueInReferenceSheet(newValue, data) { // Find related value in
         return i+1
     }
   } catch(e) {
-    if (e instanceof TypeError)  // Jakby sie pojawil blad w utworzeniu referencji, to poleci info do mnie na maila
-      MailApp.sendEmail('karol.siedlaczek@redge.com', '[Formularz sheet] REFERENCE_ERROR', ('Reference has not been created for ' + newValue))
+    if (e instanceof TypeError)  // if any error with relationship, send info admin
+      MailApp.sendEmail('admin@testmain.com', '[Formularz sheet] REFERENCE_ERROR', ('Reference has not been created for ' + newValue))
   }
 }
