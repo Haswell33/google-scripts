@@ -1,5 +1,5 @@
 //it should immediately deletes duplicates, but unfinished
-var sheetID = 'google-sheets-id' //arkusz Formularz
+var sheetID = 'google-sheet-id' //arkusz Formularz
 
 function deleteDuplicates() {
   const sheet = SpreadsheetApp.openById(sheetID).getSheetByName('Firma');
