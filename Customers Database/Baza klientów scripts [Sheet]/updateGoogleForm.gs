@@ -1,20 +1,20 @@
 // Adds question to form from provided google config sheets to assigned forms. IMPORTANT - in order to import questions u need to also add this question in form in very manual way
 
 function updateGoogleForm01() {
-  const googleFormID = 'pgoogle-sheet-id'
-  const choices = getDataFromSheet('google-config-sheet-name')
+  const googleFormID = 'source-google-sheet-id'
+  const choices = getDataFromSheet('google-sheet-name') //sheet with defined responses, title row as question name and all below as options in dictionary
   importDataToGoogleForm(googleFormID, choices)
 }
 
 function updateGoogleForm02() {
-  const googleFormID = 'google-sheet-id'
-  const choices = getDataFromSheet('google-config-sheet-name')
+  const googleFormID = 'source-google-sheet-id'
+  const choices = getDataFromSheet('google-sheet-name')
   importDataToGoogleForm(googleFormID, choices)
 }
 
 function updateGoogleForm03() {
-  const googleFormID = 'google-sheets-id'
-  const choices = getDataFromSheet('google-config-sheet-name')
+  const googleFormID = 'source-google-sheets-id'
+  const choices = getDataFromSheet('google-sheet-name')
   importDataToGoogleForm(googleFormID, choices)
 }
 
