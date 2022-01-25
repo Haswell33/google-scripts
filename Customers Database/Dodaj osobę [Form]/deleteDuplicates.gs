@@ -1,5 +1,5 @@
-//TO UPDATE
-var sheetID = '1PIdpiijgl8UiT4ehqguiWjaa4r6-XavvltYXfn6Gbg0' //arkusz Formularz
+//it should immediately deletes duplicates, but unfinished
+var sheetID = 'google-sheet-id' //main sheet with forms data
 
 function deleteDuplicates() {
   const sheet = SpreadsheetApp.openById(sheetID).getSheetByName('Firma');
