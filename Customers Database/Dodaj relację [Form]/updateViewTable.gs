@@ -1,14 +1,16 @@
-//updatuje arkusz Widok aktualizując o nowo dodaną relację przy każdej edycji tego arkusza
-// all columns 23
-var sheetID = '1PIdpiijgl8UiT4ehqguiWjaa4r6-XavvltYXfn6Gbg0' //arkusz Formularz
+// onSubmitEvent()
+// Useful in sheet to read-only usage. where are only references from other sheets with data, thanks of this script it updates references on e. g. every edit or smth else
+// row/columns to reference should be defined as parameters in getDataFromReferenceSheet()
+
+var sheetID = 'google-sheet-id' //arkusz Formularz
 
 function updateViewTable() {
-  const sheet = SpreadsheetApp.openById(sheetID).getSheetByName('Widok')
-  sheet.getRange(1, 1).setValue('=INDEX(Relacja!C:D)') //Osoba Firma w kolumnie(row=1, col=1)
-  sheet.getRange(1, 21).setValue('=INDEX(Relacja!E:H)') //Nazwa stanowiska, Klasyfikacja roli, Data od, Data do w kolumnie
-  getDataFromReferenceSheet('Osoba', 3, 12, 'E', 'N', 0, sheet) // email priv, email firm, telefon priv, telefon firm., jezyk, rola, klasa prez., event notatka, ogola notatka, opiekun
-  getDataFromReferenceSheet('Firma', 13, 19, 'D', 'J', 1, sheet) // ulica, kod poczt., miasto, kraj, var, dzialalnosc, status
-  getDataFromReferenceSheet('Firma', 20, 20, 'L', 'L', 1, sheet) //Recepcja e-mail
+  const sheet = SpreadsheetApp.openById(sheetID).getSheetByName('google-subsheet-name')
+  sheet.getRange(1, 1).setValue('=INDEX(google-subsheet-name!C:D)') // source sheets
+  sheet.getRange(1, 21).setValue('=INDEX(google-subsheet-name!E:H)')
+  getDataFromReferenceSheet('google-subsheet-name', 3, 12, 'E', 'N', 0, sheet) // source sheets
+  getDataFromReferenceSheet('google-subsheet-name', 13, 19, 'D', 'J', 1, sheet)
+  getDataFromReferenceSheet('google-subsheet-name', 20, 20, 'L', 'L', 1, sheet) 
 }
 
 function getDataFromReferenceSheet(referenceSheetName, startColNumber, endColNumber, startColAddress, endColAddrress, keyCol, sheet) {
