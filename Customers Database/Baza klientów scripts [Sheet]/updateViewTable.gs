@@ -1,4 +1,4 @@
-// update sheet-name sheet in order to add new relationship on every edit
+// Useful in sheet to read-only usage. where are only references from other sheets with data, thanks of this script it updates references on e. g. every edit or smth else
 
 function updateViewTable() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('sheet-name')
