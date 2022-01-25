@@ -39,7 +39,7 @@ function findValueInReferenceSheet(newValue, sourceSheet) {
     }
   } catch(e){
     if (e instanceof TypeError)
-      MailApp.sendEmail('username@mydomain.com', 'REFERENCE_ERROR in Formularz', ('Reference has not been created for ' + newValue))
+      MailApp.sendEmail('admin@testdomain.com', 'REFERENCE_ERROR in Formularz', ('Reference has not been created for ' + newValue))
   }
 }
 
