@@ -1,21 +1,20 @@
-//Dodaje opcje odpowiedzi synchronizując je z arkuszy Konifguracja (Osoba), Konifguracja (Firma), Konifguracja (Relacje) do odpowiadających im formularzy
-//Aby słownik został zaimportowany konieczne jest dodanie tego pytania w fomularzu !!!
+// Adds question to form from provided google config sheets to assigned forms. IMPORTANT - in order to import questions u need to also add this question in form in very manual way
 
-function updateGoogleFormOsoba() {
-  const googleFormID = '1h6S2iTtqLpVMNTGhAM1hrKr4yzNYzh6DiLwy42DjIZw'
-  const choices = getDataFromSheet('Konfiguracja (Osoba)')
+function updateGoogleForm01() {
+  const googleFormID = 'pgoogle-sheet-id'
+  const choices = getDataFromSheet('google-config-sheet-name')
   importDataToGoogleForm(googleFormID, choices)
 }
 
-function updateGoogleFormFirma() {
-  const googleFormID = '1J0NKweKL6C7NOeMHF60UZRGowZe1pI7zRhiDPkkB-sA'
-  const choices = getDataFromSheet('Konfiguracja (Firma)')
+function updateGoogleForm02() {
+  const googleFormID = 'google-sheet-id'
+  const choices = getDataFromSheet('google-config-sheet-name')
   importDataToGoogleForm(googleFormID, choices)
 }
 
-function updateGoogleFormRelacja() {
-  const googleFormID = '1pMGRJl2RTZVkppE7Ny9EoxWwkCUM-fwc_MV0hs58h2M'
-  const choices = getDataFromSheet('Konfiguracja (Relacje)')
+function updateGoogleForm03() {
+  const googleFormID = 'google-sheets-id'
+  const choices = getDataFromSheet('google-config-sheet-name')
   importDataToGoogleForm(googleFormID, choices)
 }
 
