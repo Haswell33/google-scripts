@@ -1,14 +1,15 @@
 // import from sheet to google form as responses
+
 function importFromSheet() {
-  const googleFormOsobaID = '1h6S2iTtqLpVMNTGhAM1hrKr4yzNYzh6DiLwy42DjIZw';
-  const googleFormFirmaID = '1J0NKweKL6C7NOeMHF60UZRGowZe1pI7zRhiDPkkB-sA';
-  const googleFormRelacjeID = '1pMGRJl2RTZVkppE7Ny9EoxWwkCUM-fwc_MV0hs58h2M';
+  const googleForm01ID = 'google-sheet-id'; //Person
+  const googleForm02ID = 'google-sheet-id'; //Company
+  const googleForm03ID = 'google-sheet-id'; //Relationship
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('tmp_sheet_to_import');
   var data = sheet.getDataRange().getValues();
   for (i in data) {
     if (i != 0){
       sumbitResponsesToGoogleForm(googleFormRelacjeID, data[i])
-      Utilities.sleep(8000); // aby inny skrypt nadazyl
+      Utilities.sleep(8000); // very wrong way, but very useful
     }
   }
 }
