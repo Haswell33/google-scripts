@@ -1,13 +1,12 @@
-//updatuje arkusz Widok aktualizując o nowo dodaną relację przy każdej edycji tego arkusza
-// all columns 23
+// update sheet-name sheet in order to add new relationship on every edit
 
 function updateViewTable() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Widok')
-  sheet.getRange(1, 1).setValue('=INDEX(Relacja!C:D)') //Osoba Firma w kolumnie(row=1, col=1)
-  sheet.getRange(1, 21).setValue('=INDEX(Relacja!E:H)') //Nazwa stanowiska, Klasyfikacja roli, Data od, Data do w kolumnie
-  getDataFromReferenceSheet('Osoba', 3, 12, 'E', 'N', 0, sheet) // email priv, email firm, telefon priv, telefon firm., jezyk, rola, klasa prez., event notatka, ogola notatka, opiekun
-  getDataFromReferenceSheet('Firma', 13, 19, 'D', 'J', 1, sheet) // ulica, kod poczt., miasto, kraj, var, dzialalnosc, status
-  getDataFromReferenceSheet('Firma', 20, 20, 'L', 'L', 1, sheet) //Recepcja e-mail
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('sheet-name')
+  sheet.getRange(1, 1).setValue('=INDEX(subsheet-name!C:D)')
+  sheet.getRange(1, 21).setValue('=INDEX(subsheet-name!E:H)')
+  getDataFromReferenceSheet('subsheet-name', 3, 12, 'E', 'N', 0, sheet)
+  getDataFromReferenceSheet('subsheet-name', 13, 19, 'D', 'J', 1, sheet)
+  getDataFromReferenceSheet('subsheet-name', 20, 20, 'L', 'L', 1, sheet)
 }
 
 function getDataFromReferenceSheet(referenceSheetName, startColNumber, endColNumber, startColAddress, endColAddrress, keyCol, sheet) {
