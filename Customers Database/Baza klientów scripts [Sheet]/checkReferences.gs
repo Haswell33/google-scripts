@@ -1,10 +1,10 @@
 //TO UPDATE
-var sheetID = '1PIdpiijgl8UiT4ehqguiWjaa4r6-XavvltYXfn6Gbg0' //arkusz Formularz
+var sheetID = 'google-sheet-id' //arkusz Formularz
 
 function checkReferences() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Relacja')
-  checkReference(sheet, 'Osoba', 1)
-  checkReference(sheet, 'Firma', 4);
+  checkReference(sheet, 'sheet-name', 1)
+  checkReference(sheet, 'sheet-name', 4);
 }
 
 function checkReference(sheet, referenceSheetName, col) {
