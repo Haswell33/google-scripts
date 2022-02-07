@@ -1,7 +1,7 @@
 // Adds question to Google Form from provided google config sheet. 
 // IMPORTANT - in order to import questions u need to also add this question in form in very manual way
 
-function updateGoogleForm01() {
+function updateAddPersonGoogleForm() {
   const googleFormID = 'google-sheet-id';
   const choices = getDataFromSheet('google-subsheet-name');
   importDataToGoogleForm(googleFormID, choices)
