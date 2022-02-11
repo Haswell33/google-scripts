@@ -1,4 +1,6 @@
-const trueString = 'Tak' // cale to temporaryco
+// Author: Karol Siedlaczek
+
+const trueString = 'Tak'
 const falseString = 'Nie'
 const dataStartCol = 'B'
 const dataEndCol = 'AA'
@@ -6,7 +8,8 @@ const urlCol = 'AB'
 const startTextAnnexMarker = '{start_text_annex}'
 const startTextContractMarker = '{start_text_contract}'
 const annexTitle = 'Aneks do umowy B2B'
-const contractTitle = 'Umowa B2B'
+const contractTitle = 'Umowa o świadczenie usług B2B'
+const contractTemplateTitle = 'Szablon umowy B2B'
 
 class Worker { // Wykonawca
   constructor(name, city, address, pesel){
@@ -57,7 +60,7 @@ class Company { // Firma wykonawcy
   }
 }
 
-class Agent {
+class Agent { // Przedstawiciel Redge
   constructor(name, phone, email){
     this.name = { // Imie i nazwisko (Przedstawiciel) 
 		  listItem: false,
@@ -158,14 +161,14 @@ class Contract { // Warunki umowy
         }
     }
     if (salaryType == 'Ryczałtowa'){
-      this.salaryTypeRyczalt = { // Rodzaj stawki
+      this.salaryTypeConst = { // Rodzaj stawki
 		    listItem: true,
-		    marker: '{salary_type_ryczalt}',
+		    marker: '{salary_type_const}',
 		    value: true
 	    }
-      this.salaryTypeGodzinowa = { // Rodzaj stawki
+      this.salaryTypeRatio = { // Rodzaj stawki
 		    listItem: true,
-		    marker: '{salary_type_godzinowa}',
+		    marker: '{salary_type_ratio}',
 		    value: false
 	    }
 		  this.salaryNumeric = { // Wysokosc wynagrodzenia (liczbowo) {ZL.GR} OR {ZL}
@@ -179,29 +182,39 @@ class Contract { // Warunki umowy
         value: getNumberInWords(salaryConstNumeric)
       }
       if ((salaryConstNumeric.toString()).split('.')[1] != null){
-        this.salaryWordsPenny = { // Wysokosc wynagrodzenia (liczbowo) gr
+        this.salaryNumericPenny = { // Wysokosc wynagrodzenia (liczbowo) gr
           listItem: false,
           marker: '{salary_numeric_penny}',
-          value: (salaryConstNumeric.toString()).split('.')[1]
+          value: (salaryConstNumeric.toString()).split('.')[1] + '/100 grosze'
         } 
       }
       else {
-        this.salaryWordsPenny = {
+        this.salaryNumericPenny = {
           listItem: false,
           marker: '{salary_numeric_penny}',
           value: false
         }
-      }   
+      }
+      this.maxHourPerMonth = { // Maksymalna ilość godzin w miesiącu
+        listItem: true,
+        marker: '{max_hour_per_month}',
+        value: false
+      }
+      this.minHourPerMonth = { // Maksymalna ilość godzin w miesiącu
+        listItem: true,
+        marker: '{min_hour_per_month}',
+        value: false
+      }
     }
     else if (salaryType == 'Godzinowa'){
-      this.salaryTypeGodzinowa = { // Rodzaj stawki
+      this.salaryTypeRatio = { // Rodzaj stawki
 		    listItem: true,
-		    marker: '{salary_type_godzinowa}',
+		    marker: '{salary_type_ratio}',
 		    value: true
       }
-      this.salaryTypeRyczalt = { // Rodzaj stawki
+      this.salaryTypeConst = { // Rodzaj stawki
 		    listItem: true,
-		    marker: '{salary_type_ryczalt}',
+		    marker: '{salary_type_const}',
 		    value: false
       }              
       this.salaryNumeric = { // Wysokość wynagrodzenia za godz. (liczbowo) {ZL.GR} OR {ZL}
@@ -214,13 +227,21 @@ class Contract { // Warunki umowy
         marker: '{salary_words_pln}',
         value: getNumberInWords(salaryRatioNumeric)
       }
-      if ((salaryRatioNumeric.toString()).split('.')[1] != null)
-        this.salaryWordsPenny = { // Wysokosc wynagrodzenia (liczbowo) gr
+      if ((salaryRatioNumeric.toString()).split('.')[1] != null){
+        this.salaryNumericPenny = { // Wysokosc wynagrodzenia (liczbowo) gr
           listItem: false,
           marker: '{salary_numeric_penny}',
-          value: (salaryRatioNumeric.toString()).split('.')[1]
+          value: (salaryRatioNumeric.toString()).split('.')[1] + '/100 grosze'
         } 
-      if (maxHourPerMonth > 0){
+      }
+      else {
+        this.salaryNumericPenny = {
+          listItem: false,
+          marker: '{salary_numeric_penny}',
+          value: false
+        }
+      } 
+      if (maxHourPerMonth != ''){
         this.maxHourPerMonth = { // Maksymalna ilość godzin w miesiącu
           listItem: true,
           marker: '{max_hour_per_month}',
@@ -239,7 +260,7 @@ class Contract { // Warunki umowy
           value: false
         }
       }    
-      if (minHourPerMonth > 0){
+      if (minHourPerMonth != ''){
         this.minHourPerMonth = { // Minimalna ilość godzin w miesiącu
           listItem: true,
           marker: '{min_hour_per_month}',
@@ -271,12 +292,10 @@ function onOpen(){
   const sheetUi = getSheetUi()
   const menuContract = sheetUi.createMenu('Wygeneruj umowę')
   menuContract.addItem('Wybierz wykonawcę', 'createContractSelect')
-  menuContract.addItem('Generowanie zbiorcze', 'createContractBulk')
   menuContract.addItem('Szablon umowy', 'createContractTemplate')
   menuContract.addToUi()
   const menuAnnex = sheetUi.createMenu('Wygeneruj aneks')
   menuAnnex.addItem('Wybierz wykonawcę', 'createAnnexSelect')
-  menuAnnex.addItem('Generowanie zbiorcze', 'createAnnexBulk')
   menuAnnex.addToUi()
 }
 
@@ -298,40 +317,20 @@ function createContractSelect() {
       break
     default:
       console.info('found + ' + workerName + ' in row number ' + rowNumber)
-      sheetUi.alert('Rozpoczęto generowanie umowy dla: ' + result)
-      const url = createDocument(rowNumber, true, contractTitle, startTextContractMarker)
-      sheetUi.alert('Generowanie umowy zakończone pomyślnie:\n' + url)
+      sheetUi.alert('Rozpoczęto generowanie umowy dla: ' + workerName)
+      var url = createDocument(rowNumber, true, contractTitle, startTextContractMarker)
+      showSuccessMessageBox(sheetUi, url, workerName + ' - Umowa B2B')
       break
   }
 }
 
 function createContractTemplate() {
   const sheetUi = getSheetUi()
-  var html = HtmlService.createHtmlOutputFromFile('messageFailed.html')
-      .setSandboxMode(HtmlService.SandboxMode.NATIVE)
-      .setWidth(400)
-      .setHeight(300);
-  SpreadsheetApp.getUi() // Or DocumentApp or SlidesApp or FormApp.
-      .showModalDialog(html, 'My custom dialog');
-  //dataSheet = getDataSheet()
-  //createDocument(null, false, contractTitle, startTextContractMarker)
-  sheetUi.alert('Generowanie szablonu umowy zakończone pomyślnie')
-}
-
-function createContractBulk() {
-  const dataSheet = getDataSheet()
-  const sheetUi = getSheetUi()
-  //var htmlDlg = HtmlService.createHtmlOutputFromFile('msg1.html')
-  //    .setSandboxMode(HtmlService.SandboxMode.NATIVE)
-  //    .setWidth(200)
-  //    .setHeight(90);
-  //SpreadsheetApp.getUi()
-  //    .showModalDialog(htmlDlg, 'Wybierz wykonawcę');;
-  //dataSheet = getDataSheet()
-  const lastRow = dataSheet.getLastRow()
-  for (var i = 2; i <= lastRow; i++)
-    createDocument(i, false, contractTitle, startTextContractMarker)
-  sheetUi.alert('Zbiorcze generowanie umów zakończone')
+  var html = HtmlService.createHtmlOutputFromFile('createTemplate')
+    .setSandboxMode(HtmlService.SandboxMode.NATIVE);
+  html.setHeight(530)
+  html.setWidth(250)
+  sheetUi.showModalDialog(html, 'Parametry szablonu'); // next after taking data goes to getDataContractTemplate
 }
 
 function createAnnexSelect() {
@@ -346,26 +345,14 @@ function createAnnexSelect() {
       break
     default:
       console.info('found + ' + workerName + ' in row number ' + rowNumber)
-      sheetUi.alert('Rozpoczęto generowanie aneksu dla: ' + result)
+      sheetUi.alert('Rozpoczęto generowanie aneksu dla: ' + workerName)
       const url = createDocument(rowNumber, true, annexTitle, startTextAnnexMarker)
-      sheetUi.alert('Generowanie aneksu zakończone pomyślnie:\n' + url)
+      showSuccessMessageBox(sheetUi, url, workerName + ' - Aneks do umowy')
       break
   }
 }
 
-function createAnnexBulk() {
-  const dataSheet = getDataSheet()
-  const sheetUi = getSheetUi()
-  const lastRow = dataSheet.getLastRow()
-  for (var i = 2; i <= lastRow; i++)
-    createDocument(i, false , annexTitle, startTextAnnexMarker)
-  sheetUi.alert('Zbiorcze generowanie aneksów zakończone')
-}
-
 function createDocument(rowNumber, sendMailBoolean, titleDoc, startTextType){
-  rowNumber = 5
-  startTextType = '{start_text_contract}'
-  titleDoc = 'test'
   const templateDoc = getTemplateDoc()
   const destDir = getDocumentRepository()
   const data = getData(rowNumber)
@@ -403,9 +390,11 @@ function createDocument(rowNumber, sendMailBoolean, titleDoc, startTextType){
 }
 
 function saveDocInDir(doc, rowNumber) {
-  const dataSheet = getDataSheet()
   const url = doc.getUrl()
-  dataSheet.getRange(urlCol + rowNumber).setValue(url)
+  if (typeof(rowNumber) != 'object'){
+    const dataSheet = getDataSheet()
+    dataSheet.getRange(urlCol + rowNumber).setValue(url)
+  }
   console.info('SAVE: document has been saved in ' + url)
   return url
 }
@@ -473,8 +462,16 @@ function replaceMarkers(data, body) {
     if (value['listItem'] == false) {
       var found = body.findText(value['marker'])
       if (found) {
-          body.replaceText(value['marker'], value['value'])
-          console.info('REPLACE: found ' + value['marker'] + ' in document and replaced for "' + value['value'] + '"')
+        switch(value['value']){
+          case false:
+            console.info('DELETE: found ' + value['marker'] + ' and deleted from document')
+            body.replaceText(value['marker'], '')
+            break
+          default:
+            body.replaceText(value['marker'], value['value'])
+            console.info('REPLACE: found ' + value['marker'] + ' in document and replaced for "' + value['value'] + '"')
+            break
+        }    
       }
       else
         console.error('REPLACE: not found ' + value['marker'] + ' in document, can not insert "' + value['value'] + '"')
@@ -612,6 +609,33 @@ function customizeDocAPI(googleDocId, requestTitle) {
   Docs.Documents.batchUpdate(batchUpdateRequest, googleDocId)
 }
 
+function showSuccessMessageBox(sheetUi, url, title){
+  var htmlOutput = HtmlService
+    .createHtmlOutput('<div class="container"><a href="' + url + '" target="_blank">' + title + '</a></div>' + 
+    '<style>' + 
+      '.container {' +
+        'justify-content: center;' +
+        'display: flex;}' +
+      'a:link, a:visited { ' + 
+        'background-color: #fff;' +
+        'font-family: Arial, Helvetica, sans-serif;' +
+        'border: 1px solid #4285F4;' +
+        'color: #4285F4;' +
+        'padding: 8px 15px;' +
+        'text-align: center;' +
+        'text-decoration: none;' +
+        'display: inline-block;' +
+        'border-radius: 5px;' +
+        'transition: 300ms;}' +
+      'a:hover, a:active {' +
+        'background-color: #4285F4;' +
+        'color: white}' +
+     '</style>')
+    .setHeight(70)
+    .setWidth(320)
+  sheetUi.showModalDialog(htmlOutput, 'Generowanie zakończone');
+}
+
 function getPointsOrder(benefits, motivatingSystem) {
   if (motivatingSystem == true || benefits == true)
     return 'punktach 3.1 - 3.3'
@@ -662,7 +686,7 @@ function getLetterToColumn(letter) {
 function getNumberInWords(number) {
   var digits = ['', ' jeden', ' dwa', ' trzy', ' cztery', ' pięć', ' sześć', ' siedem', ' osiem', ' dziewięć']
   var tens = ['', ' jedenaście', ' dwanaście', ' trzynaście', ' czternaście', ' piętnaście', ' szesnaście', ' siedemnaście', ' osiemnaście', ' dziewiętnaście']
-  var dozens = ['', ' dziesieć', ' dwadzieścia', ' trzydzieści', ' czterdzieści', ' pięćdziesiąt', ' sześćdziesiąt', ' siedemdziesiąt', ' osiemdziesiąt', ' dziewięćdziesiąt']
+  var dozens = ['', ' dziesięć', ' dwadzieścia', ' trzydzieści', ' czterdzieści', ' pięćdziesiąt', ' sześćdziesiąt', ' siedemdziesiąt', ' osiemdziesiąt', ' dziewięćdziesiąt']
   var hundreds = ['', ' sto', ' dwieście', ' trzysta', ' czterysta', ' pięćset', ' sześćset', ' siedemset', ' osiemset', ' dziewięćset']
   var groups = [ ['', '', ''], [' tysiąc', ' tysiące', ' tysięcy'], [" milion" ," miliony" ," milionów"], [" miliard"," miliardy"," miliardów"],
                  [" bilion" ," biliony" ," bilionów"], [" biliard"," biliardy"," biliardów"], [" trylion"," tryliony"," trylionów"]];
@@ -711,33 +735,50 @@ function getNumberInWords(number) {
   }
 }
 
+function getDataContractTemplate(salaryType, benefits, motivatingSystem, taxpayerVat, minHourPerMonth, maxHourPerMonth, timeType) {
+  const sheetUi = getSheetUi()
+  var url = createDocument([salaryType, benefits, motivatingSystem, taxpayerVat, minHourPerMonth, maxHourPerMonth, timeType], false, 
+                           contractTemplateTitle, startTextContractMarker)
+  showSuccessMessageBox(sheetUi, url, 'Szablon umowy')
+}
+				
 function getData(rowNumber) {
-  switch(rowNumber){
-    case null:
-      //get testowe dane
-      break
-    default:
-      const dataSheet = getDataSheet()
-      var rows = dataSheet.getRange(dataStartCol + rowNumber + ':' + dataEndCol + rowNumber).getValues() 
-      break
+  if (typeof(rowNumber) == 'object'){ // if rowNumber is array it means this exectuion is to get template doc
+    for (var i = 0; i < rowNumber.length; i++){
+      if (rowNumber[i] == trueString)
+        rowNumber[i] = true
+      else if (rowNumber[i] == falseString)
+        rowNumber[i] = false
+    }
+    let worker = new Worker('Imię i Nazwisko',	'[Miejscowość - wykonawca]',	'[Adres - wykonawca]', '[PESEL]')
+    let company = new Company('[Nazwa - firma]', '[NIP]',	'[Miejscowość - wykonawca]',	'[Adres - firma]')
+    let agent = new Agent('[Imię i nazwisko - Przedstawiciel]',	'[Telefon - Przedstawiciel]',	'[E-mail - Przedstawiciel]')
+    let contract = new Contract(rowNumber[5], rowNumber[1], rowNumber[2], rowNumber[3], 'Test', '[Okres wypowiedzenia]', 
+                                rowNumber[0], 10, 10, new Date(1970, 01, 01, 00, 00, 00, 00), rowNumber[6],'[Ilość miesięcy]',
+                                rowNumber[4], new Date(1970, 01, 01, 00, 00, 00, 00))
+    return [worker, company, agent, contract, null]
   }
-  for (var i = 0; i < rows[0].length; i++){
-    if (rows[0][i] == trueString)
-      rows[0][i] = true
-    else if (rows[0][i] == falseString)
-      rows[0][i] = false
+  else {
+    const dataSheet = getDataSheet()
+    var rows = dataSheet.getRange(dataStartCol + rowNumber + ':' + dataEndCol + rowNumber).getValues()
+    for (var i = 0; i < rows[0].length; i++){
+      if (rows[0][i] == trueString)
+        rows[0][i] = true
+      else if (rows[0][i] == falseString)
+        rows[0][i] = false
+    }
+    let worker = new Worker(rows[0][0], rows[0][1], rows[0][2], rows[0][3])
+    let company = new Company(rows[0][4], rows[0][5], rows[0][6], rows[0][7])
+    let agent = new Agent(rows[0][8], rows[0][9], rows[0][10])
+    let contract = new Contract(rows[0][11], rows[0][12], rows[0][13], rows[0][14], rows[0][15], rows[0][16], rows[0][17], 
+                                rows[0][18], rows[0][19], rows[0][20], rows[0][21], rows[0][22], rows[0][23], rows[0][24])
+    return [worker, company, agent, contract, rows[0][25]]
   }
-  let worker = new Worker(rows[0][0], rows[0][1], rows[0][2], rows[0][3])
-  let company = new Company(rows[0][4], rows[0][5], rows[0][6], rows[0][7])
-  let agent = new Agent(rows[0][8], rows[0][9], rows[0][10])
-  let contract = new Contract(rows[0][11], rows[0][12], rows[0][13], rows[0][14], rows[0][15], rows[0][16], rows[0][17], 
-                              rows[0][18], rows[0][19], rows[0][20], rows[0][21], rows[0][22], rows[0][23], rows[0][24])
-  return [worker, company, agent, contract, rows[0][25]]
 }
 
-function getDataSheet() {return SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Contract Data')} // sheet with data about worker, contract etc.
-function getConfigSheet() {return SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Config')} // sheet with current config
-function getTextSheet() {return SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Texts')} // sheet with texts to replace
+function getDataSheet() {return SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Dane umów')} // sheet with data about worker, contract etc.
+function getConfigSheet() {return SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Konfiguracja')} // sheet with current config
+function getTextSheet() {return SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Teksty')} // sheet with texts to replace
 function getSheetUi() {return SpreadsheetApp.getUi()} 
-function getTemplateDoc() {return DriveApp.getFileById('doc-id') } // template contract
-function getDocumentRepository() {return DriveApp.getFolderById('google-drive-folder-id')} // dest directory for new contracts
+function getTemplateDoc() {return DriveApp.getFileById('') } // template contract
+function getDocumentRepository() {return DriveApp.getFolderById('')} // dest directory for new contracts
