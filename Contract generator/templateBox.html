@@ -1,0 +1,178 @@
+<div>
+  <form>
+    <label class="select-title" for="salary-type">Rodzaj stawki</label>
+    <div class='form-item'>
+      <select class="form-control" id="salary-type-id" onChange="updateSelection(this.value)">
+        <option disabled selected value> -- wybierz opcję -- </option>
+        <option value="Godzinowa">Godzinowa</option>
+        <option value="Ryczałtowa">Ryczałtowa</option>
+      </select>
+    </div>
+
+    <div class="results">
+      <div class="ans" data-ans="Godzinowa">
+        <label class="select-title" for="min-hour-per-month">Min. ilość godz. w miesiącu</label>
+        <div class="form-item">
+          <select class="form-control" id="min-hour-per-month-id">
+            <option disabled selected value> -- wybierz opcję -- </option>
+            <option value="[Ilość godzin]">Tak</option>
+            <option value="">Nie</option>
+          </select>
+        </div>
+      </div>
+
+      <div class='ans' data-ans="Godzinowa">
+        <label class="select-title" for="max-hour-per-month">Maks. ilość godz. w miesiącu</label>
+        <div class="form-item">
+          <select class="form-control" id="max-hour-per-month-id">
+            <option disabled selected value> -- wybierz opcję -- </option>
+            <option value="[Ilość godzin]">Tak</option>
+            <option value="">Nie</option>
+          </select>
+        </div>         
+      </div>
+    </div>
+
+    <label class="select-title" for="benefits">Benefity</label>
+    <div class='form-item'>
+      <select class="form-control" id="benefits-id">
+        <option disabled selected value> -- wybierz opcję -- </option>
+        <option>Tak</option>
+        <option>Nie</option>
+      </select>
+    </div>
+
+    <label class="select-title" for="motivating-system">Dedykowany system motywacyjny</label>
+    <div class='form-item'>
+      <select class="form-control" id="motivating-system-id">
+        <option disabled selected value> -- wybierz opcję -- </option>
+        <option>Tak</option>
+        <option>Nie</option>
+      </select>
+    </div>
+    
+    <label class="select-title" for="taxpayer-vat">Podatnik VAT</label>
+    <div class='form-item'> 
+      <select class="form-control" id="taxpayer-vat-id">
+        <option disabled selected value> -- wybierz opcję -- </option>
+        <option>Tak</option>
+        <option>Nie</option>
+      </select>
+    </div>
+
+    <label class="select-title" for="time-type">Czas zawarcia umowy</label>
+    <div class='form-item'> 
+      <select class="form-control" id="time-type-id">
+        <option disabled selected value> -- wybierz opcję -- </option>
+        <option>Określony</option>
+        <option>Nieokreślony</option>
+      </select>
+    </div>
+  </form>
+  <input type='button' value='Wygeneruj szablon' onmouseup='getDataForm()'/>
+</div>
+
+<script>
+  function onSuccess(argReturnValue) {
+    alert('Rozpoczęto generowanie szablonu');
+    google.script.host.close()
+  }
+
+  (function(){
+    var ele = document.querySelectorAll('form select');
+    var result = document.querySelectorAll('.results .ans');
+        ele[0].addEventListener('change',function(e){
+            var matchVal = this.value.toString();
+            
+            Array.prototype.forEach.call(result,function(val){   
+                val.style.display = 'none';
+                if(val.getAttribute('data-ans') == matchVal){
+                    val.style.display = 'block';
+                }
+            })
+        });
+
+    })()
+  function getDataForm() {
+    var salaryType = document.getElementById('salary-type-id').value;
+    var benefits = document.getElementById('benefits-id').value;
+    var motivatingSystem = document.getElementById('motivating-system-id').value;
+    var taxpayerVat = document.getElementById('taxpayer-vat-id').value;
+    var minHourPerMonth = document.getElementById('min-hour-per-month-id').value;
+    var maxHourPerMonth = document.getElementById('max-hour-per-month-id').value;
+    var timeType = document.getElementById('time-type-id').value;
+    google.script.run.withSuccessHandler(onSuccess).getDataContractTemplate(salaryType, benefits, motivatingSystem, taxpayerVat,
+                                                                            minHourPerMonth, maxHourPerMonth, timeType)
+  }
+
+</script>
+
+<style>
+  .results .ans{
+    display : none;
+  }
+
+  select::-ms-expand {
+    display: none;
+  }
+
+  .select-title {
+    position:relative;
+    float: left;
+    margin: 5px 15% 0 5%;
+    padding-left: 5px;
+    font-size: 12px
+  }
+
+  form {
+    display: inline-block;
+    font-family: Arial;
+    text-align: center
+  }
+
+  .form-item {
+  	padding-bottom: 10px;
+    position: relative;
+  	float: left;
+  	min-width: 200px;
+  	margin: 5px 5%;
+  }
+
+  .form-item:after {
+    content: '<>';
+    font: 13px "Consolas", monospace;
+    color: #333;
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
+    padding: 0 0 2px;
+    border-bottom: 1px solid #999;
+    position: absolute;
+    right: 5px;
+    top: 10px;
+    pointer-events: none;
+  }
+
+  .form-item select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100%;
+    max-width: 500px;
+    height:30px;
+    float: right;
+    margin: 5px 0px;
+    padding: 0px 14px;
+    font-size: 13px;
+    line-height: 1.25;
+    color: #333;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    -ms-word-break: normal;
+    word-break: normal;
+    border-radius: 3px;
+  }
+
+</style>
